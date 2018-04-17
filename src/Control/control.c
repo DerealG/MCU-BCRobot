@@ -1,4 +1,4 @@
-﻿#include "control.h"	
+#include "control.h"
 
 u8 MPU6050_DMP_DATA = 0; // 1为DMP，0为原始数据
 u8 filter_method = 2;  //1.卡尔曼滤波 2.一阶互补滤波
@@ -12,14 +12,18 @@ float Angle_Balance, Gyro_Balance, Gyro_Turn; //平衡倾角 平衡陀螺仪 转
 float Acceleration_Z;                         //Z轴加速度计
 int Balance_Pwm = 0, Velocity_Pwm = 0, Turn_Pwm = 0;
 int Moto1, Moto2;                             //电机PWM变量
+int MotoDiff = 0;
 
-float middle = -3.5;
-float Balance_Kp = 250, Balance_Kd = 1;
-float Velocity_Kp = 3, Velocity_Ki = 0.02;
+float middle = -2.5;
+float Balance_Kp = 300, Balance_Kd = 1;
+float Velocity_Kp = 3, Velocity_Ki = 0;
 float Turn_Kp = 0, Turn_Kd = 0;
 
 //2018-4-17 19:20 {-3.5,400,1,2,0}
 //2018-4-17 20:20 {-3.5,250,1,3,0.02}
+//2018-4-18 1:20 {-3.5,300,1,3,0}
+//2018-4-18 1:20 {-2.5,300,1,3,0}
+float Speed = 0; //移动
 /**************************************************************************
 函数功能：所有的控制代码
 		 5ms定时中断由MPU6050的INT引脚触发
@@ -45,18 +49,33 @@ int EXTI15_10_IRQHandler(void)
 		setResultPwm(Moto1, Moto2);
 
 		//Data
+		//帧头表
+		/*
+			帧头  类型  说明				参数表
+			P:		[W]		PID参数			[Motor_Close][middle][MotoDiff][Balance_Kp][Balance_Kd][Velocity_Kp][Velocity_Ki][Turn_Kp][Turn_Kd]
+			A:		[W]		动作参数		[Speed]
+			M:		[R]		MPU6050数据 [middle][Angle_Balance][Gyro_Balance][Gyro_Turn][Acceleration_Z]
+			D:		[R]		传感数据		[Temperature][battery_volt]
+		*/
 		if ((USART_RX_STA & 0x8000) == 0x8000)
 		{
-			if (USART_RX_BUF[0] == 'W' && USART_RX_BUF[1] == ':') //校验包头
+			if (USART_RX_BUF[0] == 'P' && USART_RX_BUF[1] == ':') //校验包头
 			{
-				sscanf((const char *)(USART_RX_BUF + 2), "%d,%f,%f,%f,%f,%f", &Motor_Close, &middle, &Balance_Kp, &Balance_Kd, &Velocity_Kp, &Velocity_Ki);
-				printf("Write:%d,%f,%f,%f,%f,%f\r\n", Motor_Close, middle, Balance_Kp, Balance_Kd, Velocity_Kp, Velocity_Ki);
+				sscanf((const char *)(USART_RX_BUF + 2), "%d,%f,%d,%f,%f,%f,%f,%f,%f",
+					&Motor_Close, &middle, &MotoDiff, &Balance_Kp, &Balance_Kd, &Velocity_Kp, &Velocity_Ki, &Turn_Kp, &Turn_Kd);
+				printf("Write PID:%d,%f,%d,%f,%f,%f,%f,%f,%f\r\n",
+					Motor_Close, middle, MotoDiff, Balance_Kp, Balance_Kd, Velocity_Kp, Velocity_Ki, Turn_Kp, Turn_Kd);
 			}
-			if (USART_RX_BUF[0] == 'R' && USART_RX_BUF[1] == ':')
+			else if (USART_RX_BUF[0] == 'A' && USART_RX_BUF[1] == ':')
+			{
+				sscanf((const char *)(USART_RX_BUF + 2), "%f", &Speed);
+				printf("Write Move:%f\r\n", Speed);
+			}
+			else if (USART_RX_BUF[0] == 'M' && USART_RX_BUF[1] == ':')
 			{
 				printf("Read:%f,%f,%f,%f,%f\r\n", middle, Angle_Balance, Gyro_Balance, Gyro_Turn, Acceleration_Z);
 			}
-			if (USART_RX_BUF[0] == 'D' && USART_RX_BUF[1] == ':')
+			else if (USART_RX_BUF[0] == 'D' && USART_RX_BUF[1] == ':')
 			{
 				printf("Data:%d,%f\r\n", Temperature, battery_volt);
 			}
@@ -151,14 +170,15 @@ int velocity(int encoder_left, int encoder_right)
 {
 	static float Velocity = 0, Encoder_Least = 0, Encoder = 0;
 	static float Encoder_Integral = 0;
-	Encoder_Least = (Encoder_Left + Encoder_Right) - 0;                 //===获取最新速度偏差==测量速度（左右编码器之和）-目标速度（此处为零） 
+	Encoder_Least = (Encoder_Left + Encoder_Right) - Speed;          //===获取最新速度偏差==测量速度（左右编码器之和）-目标速度（此处为零） 
 	Encoder *= 0.8;		                                                  //===一阶低通滤波器
 	Encoder += Encoder_Least*0.2;	                                      //===一阶低通滤波器
 	Encoder_Integral += Encoder;                                        //===积分出位移 积分时间：10ms
-	Encoder_Integral = Encoder_Integral;                     //===接收遥控器数据，控制前进后退
-	if (Encoder_Integral > 10000)  	Encoder_Integral = 10000;           //===积分限幅
-	if (Encoder_Integral < -10000)	Encoder_Integral = -10000;          //===积分限幅
+	if (Encoder_Integral > 100000)  	Encoder_Integral = 100000;           //===积分限幅
+	if (Encoder_Integral < -100000)	Encoder_Integral = -100000;          //===积分限幅
 	Velocity = Encoder*Velocity_Kp + Encoder_Integral*Velocity_Ki;      //===速度控制
+	if (Motor_Close)
+		Encoder_Integral = 0;
 	return Velocity;
 }
 
@@ -188,14 +208,14 @@ void setResultPwm(int moto1, int moto2)
 	}
 	else
 	{
+		moto1 += MotoDiff;
+		moto2 -= MotoDiff;
 		if (moto1 < -MAX_SPEED) moto1 = -MAX_SPEED;
 		if (moto1 > MAX_SPEED)  moto1 = MAX_SPEED;
 		if (moto2 < -MAX_SPEED) moto2 = -MAX_SPEED;
 		if (moto2 > MAX_SPEED)  moto2 = MAX_SPEED;
 		PAout(4) = 0;
 	}
-	DataScope_Get_Channel_Data(moto1, 2);
-	DataScope_Get_Channel_Data(moto2, 3);
 	Set_Pwm(moto1, moto2);
 }
 
@@ -216,10 +236,8 @@ void DataSend(void)
 {
 	int i;
 	DataScope_Get_Channel_Data(Angle_Balance * 10, 1); // X10利于观察
-	DataScope_Get_Channel_Data(Encoder_Left, 4);
-	DataScope_Get_Channel_Data(Encoder_Right, 5);
 
-	Send_Count = DataScope_Data_Generate(5);
+	Send_Count = DataScope_Data_Generate(3);
 
 	for (i = 0; i < Send_Count; i++)
 	{

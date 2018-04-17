@@ -1,4 +1,4 @@
-﻿#include "motor.h"
+#include "motor.h"
 
 void MiniBalance_Motor_Init(void)
 {
