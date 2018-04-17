@@ -1,9 +1,9 @@
-#include <uart.h>
+ï»¿#include <uart.h>
 
 //////////////////////////////////////////////////////////////////
-//¼ÓÈëÒÔÏÂ´úÂë,Ö§³Öprintfº¯Êý,¶ø²»ÐèÒªÑ¡Ôñuse MicroLIB	  
+//åŠ å…¥ä»¥ä¸‹ä»£ç ,æ”¯æŒprintfå‡½æ•°,è€Œä¸éœ€è¦é€‰æ‹©use MicroLIB	  
 #pragma import(__use_no_semihosting)             
-//±ê×¼¿âÐèÒªµÄÖ§³Öº¯Êý                 
+//æ ‡å‡†åº“éœ€è¦çš„æ”¯æŒå‡½æ•°                 
 struct __FILE 
 { 
 	int handle; 
@@ -11,12 +11,12 @@ struct __FILE
 }; 
 
 FILE __stdout;  
-//¶¨Òå_sys_exit()ÒÔ±ÜÃâÊ¹ÓÃ°ëÖ÷»úÄ£Ê½    
+//å®šä¹‰_sys_exit()ä»¥é¿å…ä½¿ç”¨åŠä¸»æœºæ¨¡å¼    
 _sys_exit(int x) 
 { 
 	x = x; 
 } 
-//ÖØ¶¨Òåfputcº¯Êý 
+//é‡å®šä¹‰fputcå‡½æ•° 
 int fputc(int ch, FILE *f)
 {
 #if USART_PRINT==1
@@ -31,123 +31,123 @@ int fputc(int ch, FILE *f)
 }
 
 void uart1_init(u32 bound){
-  //GPIO¶Ë¿ÚÉèÖÃ
+  //GPIOç«¯å£è®¾ç½®
   GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
 #if EN_USART1_RX
 	NVIC_InitTypeDef NVIC_InitStructure;
 #endif
 	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1|RCC_APB2Periph_GPIOA, ENABLE);	//Ê¹ÄÜUSART1£¬GPIOAÊ±ÖÓ
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1|RCC_APB2Periph_GPIOA, ENABLE);	//ä½¿èƒ½USART1ï¼ŒGPIOAæ—¶é’Ÿ
   
 	//USART1_TX   GPIOA.9
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9; //PA.9
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//¸´ÓÃÍÆÍìÊä³ö
-  GPIO_Init(GPIOA, &GPIO_InitStructure);//³õÊ¼»¯GPIOA.9
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//å¤ç”¨æŽ¨æŒ½è¾“å‡º
+  GPIO_Init(GPIOA, &GPIO_InitStructure);//åˆå§‹åŒ–GPIOA.9
    
-  //USART1_RX	  GPIOA.10³õÊ¼»¯
+  //USART1_RX	  GPIOA.10åˆå§‹åŒ–
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;//PA.10
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//¸¡¿ÕÊäÈë
-  GPIO_Init(GPIOA, &GPIO_InitStructure);//³õÊ¼»¯GPIOA.10  
-   //USART ³õÊ¼»¯ÉèÖÃ
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//æµ®ç©ºè¾“å…¥
+  GPIO_Init(GPIOA, &GPIO_InitStructure);//åˆå§‹åŒ–GPIOA.10  
+   //USART åˆå§‹åŒ–è®¾ç½®
 
-	USART_InitStructure.USART_BaudRate = bound;//´®¿Ú²¨ÌØÂÊ
-	USART_InitStructure.USART_WordLength = USART_WordLength_8b;//×Ö³¤Îª8Î»Êý¾Ý¸ñÊ½
-	USART_InitStructure.USART_StopBits = USART_StopBits_1;//Ò»¸öÍ£Ö¹Î»
-	USART_InitStructure.USART_Parity = USART_Parity_No;//ÎÞÆæÅ¼Ð£ÑéÎ»
-	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;//ÎÞÓ²¼þÊý¾ÝÁ÷¿ØÖÆ
-	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;	//ÊÕ·¢Ä£Ê½
+	USART_InitStructure.USART_BaudRate = bound;//ä¸²å£æ³¢ç‰¹çŽ‡
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;//å­—é•¿ä¸º8ä½æ•°æ®æ ¼å¼
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;//ä¸€ä¸ªåœæ­¢ä½
+	USART_InitStructure.USART_Parity = USART_Parity_No;//æ— å¥‡å¶æ ¡éªŒä½
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;//æ— ç¡¬ä»¶æ•°æ®æµæŽ§åˆ¶
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;	//æ”¶å‘æ¨¡å¼
 
-  USART_Init(USART1, &USART_InitStructure); //³õÊ¼»¯´®¿Ú1
-  USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);//¿ªÆô´®¿Ú½ÓÊÜÖÐ¶Ï
-  USART_Cmd(USART1, ENABLE);                    //Ê¹ÄÜ´®¿Ú1 
+  USART_Init(USART1, &USART_InitStructure); //åˆå§‹åŒ–ä¸²å£1
+  USART_ITConfig(USART1, USART_IT_RXNE, DISABLE);//å¼€å¯ä¸²å£æŽ¥å—ä¸­æ–­
+  USART_Cmd(USART1, ENABLE);                    //ä½¿èƒ½ä¸²å£1 
 	
 	#if EN_USART1_RX	
 	
-	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);//¿ªÆôÏà¹ØÖÐ¶Ï
+	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);//å¼€å¯ç›¸å…³ä¸­æ–­
 
-	//Usart1 NVIC ÅäÖÃ
+	//Usart1 NVIC é…ç½®
 	
-	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;//´®¿Ú1ÖÐ¶ÏÍ¨µÀ
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3;//ÇÀÕ¼ÓÅÏÈ¼¶3
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority =3;		//×ÓÓÅÏÈ¼¶3
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQÍ¨µÀÊ¹ÄÜ
-	NVIC_Init(&NVIC_InitStructure);	//¸ù¾ÝÖ¸¶¨µÄ²ÎÊý³õÊ¼»¯VIC¼Ä´æÆ÷¡¢
+	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;//ä¸²å£1ä¸­æ–­é€šé“
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3;//æŠ¢å ä¼˜å…ˆçº§3
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =3;		//å­ä¼˜å…ˆçº§3
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQé€šé“ä½¿èƒ½
+	NVIC_Init(&NVIC_InitStructure);	//æ ¹æ®æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–VICå¯„å­˜å™¨ã€
 
 	#endif
 
 }
 
 void uart3_init(u32 bound){
-  //GPIO¶Ë¿ÚÉèÖÃ
+  //GPIOç«¯å£è®¾ç½®
   GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
 #if EN_USART3_RX
 	NVIC_InitTypeDef NVIC_InitStructure;
 #endif
 	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);	//Ê¹ÄÜUGPIOBÊ±ÖÓ
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);	//Ê¹ÄÜUSART3Ê±ÖÓ
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);	//ä½¿èƒ½UGPIOBæ—¶é’Ÿ
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);	//ä½¿èƒ½USART3æ—¶é’Ÿ
   
 	//USART3_TX   GPIOB.10
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10; //PB.10
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//¸´ÓÃÍÆÍìÊä³ö
-  GPIO_Init(GPIOB, &GPIO_InitStructure);//³õÊ¼»¯GPIOB.10
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//å¤ç”¨æŽ¨æŒ½è¾“å‡º
+  GPIO_Init(GPIOB, &GPIO_InitStructure);//åˆå§‹åŒ–GPIOB.10
    
-  //USART3_RX	  GPIOB.11³õÊ¼»¯
+  //USART3_RX	  GPIOB.11åˆå§‹åŒ–
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;//PB.11
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//¸¡¿ÕÊäÈë
-  GPIO_Init(GPIOB, &GPIO_InitStructure);//³õÊ¼»¯GPIOB.11
-   //USART ³õÊ¼»¯ÉèÖÃ
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//æµ®ç©ºè¾“å…¥
+  GPIO_Init(GPIOB, &GPIO_InitStructure);//åˆå§‹åŒ–GPIOB.11
+   //USART åˆå§‹åŒ–è®¾ç½®
 
-	USART_InitStructure.USART_BaudRate = bound;//´®¿Ú²¨ÌØÂÊ
-	USART_InitStructure.USART_WordLength = USART_WordLength_8b;//×Ö³¤Îª8Î»Êý¾Ý¸ñÊ½
-	USART_InitStructure.USART_StopBits = USART_StopBits_1;//Ò»¸öÍ£Ö¹Î»
-	USART_InitStructure.USART_Parity = USART_Parity_No;//ÎÞÆæÅ¼Ð£ÑéÎ»
-	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;//ÎÞÓ²¼þÊý¾ÝÁ÷¿ØÖÆ
-	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;	//ÊÕ·¢Ä£Ê½
+	USART_InitStructure.USART_BaudRate = bound;//ä¸²å£æ³¢ç‰¹çŽ‡
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;//å­—é•¿ä¸º8ä½æ•°æ®æ ¼å¼
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;//ä¸€ä¸ªåœæ­¢ä½
+	USART_InitStructure.USART_Parity = USART_Parity_No;//æ— å¥‡å¶æ ¡éªŒä½
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;//æ— ç¡¬ä»¶æ•°æ®æµæŽ§åˆ¶
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;	//æ”¶å‘æ¨¡å¼
 
-  USART_Init(USART3, &USART_InitStructure); //³õÊ¼»¯´®¿Ú1
-  USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);//¿ªÆô´®¿Ú½ÓÊÜÖÐ¶Ï
-  USART_Cmd(USART3, ENABLE);                    //Ê¹ÄÜ´®¿Ú1 
+  USART_Init(USART3, &USART_InitStructure); //åˆå§‹åŒ–ä¸²å£1
+  USART_ITConfig(USART3, USART_IT_RXNE, DISABLE);//å¼€å¯ä¸²å£æŽ¥å—ä¸­æ–­
+  USART_Cmd(USART3, ENABLE);                    //ä½¿èƒ½ä¸²å£1 
 	
 	#if EN_USART3_RX
-	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);//¿ªÆôÏà¹ØÖÐ¶Ï
+	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);//å¼€å¯ç›¸å…³ä¸­æ–­
 
-	//Usart3 NVIC ÅäÖÃ
-	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;//´®¿Ú1ÖÐ¶ÏÍ¨µÀ
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3;//ÇÀÕ¼ÓÅÏÈ¼¶3
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority =3;		//×ÓÓÅÏÈ¼¶3
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQÍ¨µÀÊ¹ÄÜ
-	NVIC_Init(&NVIC_InitStructure);	//¸ù¾ÝÖ¸¶¨µÄ²ÎÊý³õÊ¼»¯VIC¼Ä´æÆ÷¡¢
+	//Usart3 NVIC é…ç½®
+	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;//ä¸²å£1ä¸­æ–­é€šé“
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3;//æŠ¢å ä¼˜å…ˆçº§3
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =3;		//å­ä¼˜å…ˆçº§3
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQé€šé“ä½¿èƒ½
+	NVIC_Init(&NVIC_InitStructure);	//æ ¹æ®æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–VICå¯„å­˜å™¨ã€
 
 	#endif
 
 }
 
-u8 USART_RX_BUF[USART_REV_LEN];     //½ÓÊÕ»º³å,USART_REV_LEN¸ö×Ö½Ú
-u16 USART_RX_STA=0;       					//½ÓÊÕ×´Ì¬±ê¼Ç	
+u8 USART_RX_BUF[USART_REV_LEN];     //æŽ¥æ”¶ç¼“å†²,USART_REV_LENä¸ªå­—èŠ‚
+u16 USART_RX_STA=0;       					//æŽ¥æ”¶çŠ¶æ€æ ‡è®°	
 
 #if EN_USART1_RX
-void USART1_IRQHandler(void)                	//´®¿Ú1ÖÐ¶Ï·þÎñ³ÌÐò
+void USART1_IRQHandler(void)                	//ä¸²å£1ä¸­æ–­æœåŠ¡ç¨‹åº
 {
 	u8 Res;
-	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  //½ÓÊÕÖÐ¶Ï(½ÓÊÕµ½µÄÊý¾Ý±ØÐëÊÇ0x0d 0x0a½áÎ²)
+	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  //æŽ¥æ”¶ä¸­æ–­(æŽ¥æ”¶åˆ°çš„æ•°æ®å¿…é¡»æ˜¯0x0d 0x0aç»“å°¾)
 	{
-		Res =USART_ReceiveData(USART1);//(USART3->DR);	//¶ÁÈ¡½ÓÊÕµ½µÄÊý¾Ý
+		Res =USART_ReceiveData(USART1);//(USART3->DR);	//è¯»å–æŽ¥æ”¶åˆ°çš„æ•°æ®
 		
-		if((USART_RX_STA&0x8000)==0)//½ÓÊÕÎ´Íê³É
+		if((USART_RX_STA&0x8000)==0)//æŽ¥æ”¶æœªå®Œæˆ
 		{
-			if(USART_RX_STA&0x4000)//½ÓÊÕµ½ÁË0x0d
+			if(USART_RX_STA&0x4000)//æŽ¥æ”¶åˆ°äº†0x0d
 			{
 				if(Res!=0x0a)
-					USART_RX_STA=0;//½ÓÊÕ´íÎó,ÖØÐÂ¿ªÊ¼
+					USART_RX_STA=0;//æŽ¥æ”¶é”™è¯¯,é‡æ–°å¼€å§‹
 				else
-					USART_RX_STA|=0x8000;	//½ÓÊÕÍê³ÉÁË 
+					USART_RX_STA|=0x8000;	//æŽ¥æ”¶å®Œæˆäº† 
 			}
-			else //»¹Ã»ÊÕµ½0X0D
+			else //è¿˜æ²¡æ”¶åˆ°0X0D
 			{	
 				if(Res==0x0d)
 					USART_RX_STA|=0x4000;
@@ -156,7 +156,7 @@ void USART1_IRQHandler(void)                	//´®¿Ú1ÖÐ¶Ï·þÎñ³ÌÐò
 					USART_RX_BUF[USART_RX_STA&0X3FFF]=Res ;
 					USART_RX_STA++;
 					if(USART_RX_STA>(USART_REV_LEN-1))
-						USART_RX_STA=0;	//½ÓÊÕÊý¾Ý´íÎó,ÖØÐÂ¿ªÊ¼½ÓÊÕ	  
+						USART_RX_STA=0;	//æŽ¥æ”¶æ•°æ®é”™è¯¯,é‡æ–°å¼€å§‹æŽ¥æ”¶	  
 				}		 
 			}
 		}   		 
@@ -165,23 +165,23 @@ void USART1_IRQHandler(void)                	//´®¿Ú1ÖÐ¶Ï·þÎñ³ÌÐò
 #endif
 
 #if EN_USART3_RX
-void USART3_IRQHandler(void)                	//´®¿Ú3ÖÐ¶Ï·þÎñ³ÌÐò
+void USART3_IRQHandler(void)                	//ä¸²å£3ä¸­æ–­æœåŠ¡ç¨‹åº
 {
 	u8 Res;
-	if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)  //½ÓÊÕÖÐ¶Ï(½ÓÊÕµ½µÄÊý¾Ý±ØÐëÊÇ0x0d 0x0a½áÎ²)
+	if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)  //æŽ¥æ”¶ä¸­æ–­(æŽ¥æ”¶åˆ°çš„æ•°æ®å¿…é¡»æ˜¯0x0d 0x0aç»“å°¾)
 	{
-		Res =USART_ReceiveData(USART3);//(USART3->DR);	//¶ÁÈ¡½ÓÊÕµ½µÄÊý¾Ý
+		Res =USART_ReceiveData(USART3);//(USART3->DR);	//è¯»å–æŽ¥æ”¶åˆ°çš„æ•°æ®
 		
-		if((USART_RX_STA&0x8000)==0)//½ÓÊÕÎ´Íê³É
+		if((USART_RX_STA&0x8000)==0)//æŽ¥æ”¶æœªå®Œæˆ
 		{
-			if(USART_RX_STA&0x4000)//½ÓÊÕµ½ÁË0x0d
+			if(USART_RX_STA&0x4000)//æŽ¥æ”¶åˆ°äº†0x0d
 			{
 				if(Res!=0x0a)
-					USART_RX_STA=0;//½ÓÊÕ´íÎó,ÖØÐÂ¿ªÊ¼
+					USART_RX_STA=0;//æŽ¥æ”¶é”™è¯¯,é‡æ–°å¼€å§‹
 				else
-					USART_RX_STA|=0x8000;	//½ÓÊÕÍê³ÉÁË 
+					USART_RX_STA|=0x8000;	//æŽ¥æ”¶å®Œæˆäº† 
 			}
-			else //»¹Ã»ÊÕµ½0X0D
+			else //è¿˜æ²¡æ”¶åˆ°0X0D
 			{	
 				if(Res==0x0d)
 					USART_RX_STA|=0x4000;
@@ -190,7 +190,7 @@ void USART3_IRQHandler(void)                	//´®¿Ú3ÖÐ¶Ï·þÎñ³ÌÐò
 					USART_RX_BUF[USART_RX_STA&0X3FFF]=Res ;
 					USART_RX_STA++;
 					if(USART_RX_STA>(USART_REV_LEN-1))
-						USART_RX_STA=0;	//½ÓÊÕÊý¾Ý´íÎó,ÖØÐÂ¿ªÊ¼½ÓÊÕ	  
+						USART_RX_STA=0;	//æŽ¥æ”¶æ•°æ®é”™è¯¯,é‡æ–°å¼€å§‹æŽ¥æ”¶	  
 				}		 
 			}
 		}   		 

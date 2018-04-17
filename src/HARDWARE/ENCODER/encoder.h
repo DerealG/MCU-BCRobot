@@ -1,8 +1,8 @@
-#ifndef __ENCODER_H
+ï»¿#ifndef __ENCODER_H
 #define __ENCODER_H
 #include <sys.h>	 
 
-#define ENCODER_TIM_PERIOD (u16)(65535)   //²»¿É´óÓÚ65535 ÒòÎªF103µÄ¶¨Ê±Æ÷ÊÇ16Î»µÄ¡£
+#define ENCODER_TIM_PERIOD (u16)(65535)   //ä¸å¯å¤§äº65535 å› ä¸ºF103çš„å®šæ—¶å™¨æ˜¯16ä½çš„ã€‚
 void Encoder_Init_TIM2(void);
 void Encoder_Init_TIM4(void);
 int Read_Encoder(u8 TIMX);

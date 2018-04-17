@@ -1,17 +1,17 @@
-#include "control.h"	
+ï»¿#include "control.h"	
 
-u8 MPU6050_DMP_DATA = 0; // 1ÎªDMP£¬0ÎªÔ­Ê¼Êı¾İ
-u8 filter_method = 2;  //1.¿¨¶ûÂüÂË²¨ 2.Ò»½×»¥²¹ÂË²¨
+u8 MPU6050_DMP_DATA = 0; // 1ä¸ºDMPï¼Œ0ä¸ºåŸå§‹æ•°æ®
+u8 filter_method = 2;  //1.å¡å°”æ›¼æ»¤æ³¢ 2.ä¸€é˜¶äº’è¡¥æ»¤æ³¢
 
 int Motor_Close = 0;
 
 int Temperature = 0;
 float battery_volt = 0;
 int Encoder_Left = 0, Encoder_Right = 0;
-float Angle_Balance, Gyro_Balance, Gyro_Turn; //Æ½ºâÇã½Ç Æ½ºâÍÓÂİÒÇ ×ªÏòÍÓÂİÒÇ
-float Acceleration_Z;                         //ZÖá¼ÓËÙ¶È¼Æ
+float Angle_Balance, Gyro_Balance, Gyro_Turn; //å¹³è¡¡å€¾è§’ å¹³è¡¡é™€èºä»ª è½¬å‘é™€èºä»ª
+float Acceleration_Z;                         //Zè½´åŠ é€Ÿåº¦è®¡
 int Balance_Pwm = 0, Velocity_Pwm = 0, Turn_Pwm = 0;
-int Moto1, Moto2;                             //µç»úPWM±äÁ¿
+int Moto1, Moto2;                             //ç”µæœºPWMå˜é‡
 
 float middle = -3.5;
 float Balance_Kp = 250, Balance_Kd = 1;
@@ -21,33 +21,33 @@ float Turn_Kp = 0, Turn_Kd = 0;
 //2018-4-17 19:20 {-3.5,400,1,2,0}
 //2018-4-17 20:20 {-3.5,250,1,3,0.02}
 /**************************************************************************
-º¯Êı¹¦ÄÜ£ºËùÓĞµÄ¿ØÖÆ´úÂë
-		 5ms¶¨Ê±ÖĞ¶ÏÓÉMPU6050µÄINTÒı½Å´¥·¢
-		 ÑÏ¸ñ±£Ö¤²ÉÑùºÍÊı¾İ´¦ÀíµÄÊ±¼äÍ¬²½
+å‡½æ•°åŠŸèƒ½ï¼šæ‰€æœ‰çš„æ§åˆ¶ä»£ç 
+		 5mså®šæ—¶ä¸­æ–­ç”±MPU6050çš„INTå¼•è„šè§¦å‘
+		 ä¸¥æ ¼ä¿è¯é‡‡æ ·å’Œæ•°æ®å¤„ç†çš„æ—¶é—´åŒæ­¥
 **************************************************************************/
 int EXTI15_10_IRQHandler(void)
 {
 	if (MPU6050_INT == 0)
 	{
-		EXTI_ClearITPendingBit(EXTI_Line12);  	 //Çå³ıLINE12ÉÏµÄÖĞ¶Ï±êÖ¾Î»   
+		EXTI_ClearITPendingBit(EXTI_Line12);  	 //æ¸…é™¤LINE12ä¸Šçš„ä¸­æ–­æ ‡å¿—ä½   
 
-		Temperature = Read_Temperature();      					 //¶ÁÈ¡MPU6050ÄÚÖÃÎÂ¶È´«¸ĞÆ÷Êı¾İ
+		Temperature = Read_Temperature();      					 //è¯»å–MPU6050å†…ç½®æ¸©åº¦ä¼ æ„Ÿå™¨æ•°æ®
 		battery_volt = Get_battery_volt();
-		Encoder_Left = Read_Encoder(2);                //===¶ÁÈ¡±àÂëÆ÷µÄÖµ
-		Encoder_Right = Read_Encoder(4);               //===¶ÁÈ¡±àÂëÆ÷µÄÖµ
-		Get_Angle(MPU6050_DMP_DATA);                 //===¸üĞÂ×ËÌ¬
+		Encoder_Left = Read_Encoder(2);                //===è¯»å–ç¼–ç å™¨çš„å€¼
+		Encoder_Right = Read_Encoder(4);               //===è¯»å–ç¼–ç å™¨çš„å€¼
+		Get_Angle(MPU6050_DMP_DATA);                 //===æ›´æ–°å§¿æ€
 		SafeCheck();
-		Balance_Pwm = balance(Angle_Balance, Gyro_Balance);        //===Æ½ºâPID¿ØÖÆ
-		Velocity_Pwm = velocity(Encoder_Left, Encoder_Right);      //===ËÙ¶È»·PID¿ØÖÆ
-		//Turn_Pwm = turn(Encoder_Left, Encoder_Right, Gyro_Turn);   //===×ªÏò»·PID¿ØÖÆ
-		Moto1 = Balance_Pwm - Velocity_Pwm + Turn_Pwm;             //===¼ÆËã×óÂÖµç»ú×îÖÕPWM
-		Moto2 = Balance_Pwm - Velocity_Pwm - Turn_Pwm;             //===¼ÆËãÓÒÂÖµç»ú×îÖÕPWM
+		Balance_Pwm = balance(Angle_Balance, Gyro_Balance);        //===å¹³è¡¡PIDæ§åˆ¶
+		Velocity_Pwm = velocity(Encoder_Left, Encoder_Right);      //===é€Ÿåº¦ç¯PIDæ§åˆ¶
+		//Turn_Pwm = turn(Encoder_Left, Encoder_Right, Gyro_Turn);   //===è½¬å‘ç¯PIDæ§åˆ¶
+		Moto1 = Balance_Pwm - Velocity_Pwm + Turn_Pwm;             //===è®¡ç®—å·¦è½®ç”µæœºæœ€ç»ˆPWM
+		Moto2 = Balance_Pwm - Velocity_Pwm - Turn_Pwm;             //===è®¡ç®—å³è½®ç”µæœºæœ€ç»ˆPWM
 		setResultPwm(Moto1, Moto2);
 
 		//Data
 		if ((USART_RX_STA & 0x8000) == 0x8000)
 		{
-			if (USART_RX_BUF[0] == 'W' && USART_RX_BUF[1] == ':') //Ğ£Ñé°üÍ·
+			if (USART_RX_BUF[0] == 'W' && USART_RX_BUF[1] == ':') //æ ¡éªŒåŒ…å¤´
 			{
 				sscanf((const char *)(USART_RX_BUF + 2), "%d,%f,%f,%f,%f,%f", &Motor_Close, &middle, &Balance_Kp, &Balance_Kd, &Velocity_Kp, &Velocity_Ki);
 				printf("Write:%d,%f,%f,%f,%f,%f\r\n", Motor_Close, middle, Balance_Kp, Balance_Kd, Velocity_Kp, Velocity_Ki);
@@ -72,7 +72,7 @@ int EXTI15_10_IRQHandler(void)
 
 int EXTI9_5_IRQHandler(void)
 {
-	delay_ms(10);	//Ïû¶¶
+	delay_ms(10);	//æ¶ˆæŠ–
 	if (PAin(5) == 0)
 	{
 		if (Motor_Close)
@@ -92,85 +92,85 @@ int EXTI9_5_IRQHandler(void)
 }
 
 /**************************************************************************
-º¯Êı¹¦ÄÜ£º»ñÈ¡½Ç¶È
-Èë¿Ú²ÎÊı£º»ñÈ¡½Ç¶ÈµÄËã·¨ 1£ºDMP  2£º¿¨¶ûÂü 3£º»¥²¹ÂË²¨
-·µ»Ø  Öµ£ºÎŞ
+å‡½æ•°åŠŸèƒ½ï¼šè·å–è§’åº¦
+å…¥å£å‚æ•°ï¼šè·å–è§’åº¦çš„ç®—æ³• 1ï¼šDMP  2ï¼šå¡å°”æ›¼ 3ï¼šäº’è¡¥æ»¤æ³¢
+è¿”å›  å€¼ï¼šæ— 
 **************************************************************************/
 void Get_Angle(u8 dataSource)
 {
 	float Accel_Y, Accel_Angle, Accel_Z, Gyro_X, Gyro_Z;
-	if (dataSource == 1)                           //===DMPµÄ¶ÁÈ¡ÔÚÊı¾İ²É¼¯ÖĞ¶Ï¶ÁÈ¡£¬ÑÏ¸ñ×ñÑ­Ê±ĞòÒªÇó
+	if (dataSource == 1)                           //===DMPçš„è¯»å–åœ¨æ•°æ®é‡‡é›†ä¸­æ–­è¯»å–ï¼Œä¸¥æ ¼éµå¾ªæ—¶åºè¦æ±‚
 	{
-		Read_DMP();                      //===¶ÁÈ¡¼ÓËÙ¶È¡¢½ÇËÙ¶È¡¢Çã½Ç
-		Angle_Balance = -Roll;             //===¸üĞÂÆ½ºâÇã½Ç
-		Gyro_Balance = -gyro[0];            //===¸üĞÂÆ½ºâ½ÇËÙ¶È
-		Gyro_Turn = gyro[2];               //===¸üĞÂ×ªÏò½ÇËÙ¶È
-		Acceleration_Z = accel[2];         //===¸üĞÂZÖá¼ÓËÙ¶È¼Æ
+		Read_DMP();                      //===è¯»å–åŠ é€Ÿåº¦ã€è§’é€Ÿåº¦ã€å€¾è§’
+		Angle_Balance = -Roll;             //===æ›´æ–°å¹³è¡¡å€¾è§’
+		Gyro_Balance = -gyro[0];            //===æ›´æ–°å¹³è¡¡è§’é€Ÿåº¦
+		Gyro_Turn = gyro[2];               //===æ›´æ–°è½¬å‘è§’é€Ÿåº¦
+		Acceleration_Z = accel[2];         //===æ›´æ–°Zè½´åŠ é€Ÿåº¦è®¡
 	}
 	else
 	{
-		Gyro_X = (I2C_ReadOneByte(devAddr, MPU6050_RA_GYRO_XOUT_H) << 8) + I2C_ReadOneByte(devAddr, MPU6050_RA_GYRO_XOUT_L);    //¶ÁÈ¡YÖáÍÓÂİÒÇ
-		Gyro_Z = (I2C_ReadOneByte(devAddr, MPU6050_RA_GYRO_ZOUT_H) << 8) + I2C_ReadOneByte(devAddr, MPU6050_RA_GYRO_ZOUT_L);    //¶ÁÈ¡ZÖáÍÓÂİÒÇ
-		Accel_Y = (I2C_ReadOneByte(devAddr, MPU6050_RA_ACCEL_YOUT_H) << 8) + I2C_ReadOneByte(devAddr, MPU6050_RA_ACCEL_YOUT_L); //¶ÁÈ¡XÖá¼ÓËÙ¶È¼Æ
-		Accel_Z = (I2C_ReadOneByte(devAddr, MPU6050_RA_ACCEL_ZOUT_H) << 8) + I2C_ReadOneByte(devAddr, MPU6050_RA_ACCEL_ZOUT_L); //¶ÁÈ¡ZÖá¼ÓËÙ¶È¼Æ
-		if (Gyro_X > 32768)  Gyro_X -= 65536;                       //Êı¾İÀàĞÍ×ª»»  Ò²¿ÉÍ¨¹ıshortÇ¿ÖÆÀàĞÍ×ª»»
-		if (Gyro_Z > 32768)  Gyro_Z -= 65536;                       //Êı¾İÀàĞÍ×ª»»
-		if (Accel_Y > 32768) Accel_Y -= 65536;                      //Êı¾İÀàĞÍ×ª»»
-		if (Accel_Z > 32768) Accel_Z -= 65536;                      //Êı¾İÀàĞÍ×ª»»
-		Gyro_Balance = Gyro_X;                                   //¸üĞÂÆ½ºâ½ÇËÙ¶È
-		Accel_Angle = atan2(Accel_Y, Accel_Z) * 180 / PI;        //¼ÆËãÇã½Ç
-		Gyro_X = Gyro_X / 16.4;                                  //ÍÓÂİÒÇÁ¿³Ì×ª»»
-		if (filter_method == 1)		  	Kalman_Filter(Accel_Angle, Gyro_X);//¿¨¶ûÂüÂË²¨
-		else if (filter_method == 2)   First_Filter(Accel_Angle, Gyro_X);//»¥²¹ÂË²¨
-		Angle_Balance = angle;                                   //¸üĞÂÆ½ºâÇã½Ç
-		Gyro_Turn = Gyro_Z;                                      //¸üĞÂ×ªÏò½ÇËÙ¶È
-		Acceleration_Z = Accel_Z;                                //===¸üĞÂZÖá¼ÓËÙ¶È¼Æ
+		Gyro_X = (I2C_ReadOneByte(devAddr, MPU6050_RA_GYRO_XOUT_H) << 8) + I2C_ReadOneByte(devAddr, MPU6050_RA_GYRO_XOUT_L);    //è¯»å–Yè½´é™€èºä»ª
+		Gyro_Z = (I2C_ReadOneByte(devAddr, MPU6050_RA_GYRO_ZOUT_H) << 8) + I2C_ReadOneByte(devAddr, MPU6050_RA_GYRO_ZOUT_L);    //è¯»å–Zè½´é™€èºä»ª
+		Accel_Y = (I2C_ReadOneByte(devAddr, MPU6050_RA_ACCEL_YOUT_H) << 8) + I2C_ReadOneByte(devAddr, MPU6050_RA_ACCEL_YOUT_L); //è¯»å–Xè½´åŠ é€Ÿåº¦è®¡
+		Accel_Z = (I2C_ReadOneByte(devAddr, MPU6050_RA_ACCEL_ZOUT_H) << 8) + I2C_ReadOneByte(devAddr, MPU6050_RA_ACCEL_ZOUT_L); //è¯»å–Zè½´åŠ é€Ÿåº¦è®¡
+		if (Gyro_X > 32768)  Gyro_X -= 65536;                       //æ•°æ®ç±»å‹è½¬æ¢  ä¹Ÿå¯é€šè¿‡shortå¼ºåˆ¶ç±»å‹è½¬æ¢
+		if (Gyro_Z > 32768)  Gyro_Z -= 65536;                       //æ•°æ®ç±»å‹è½¬æ¢
+		if (Accel_Y > 32768) Accel_Y -= 65536;                      //æ•°æ®ç±»å‹è½¬æ¢
+		if (Accel_Z > 32768) Accel_Z -= 65536;                      //æ•°æ®ç±»å‹è½¬æ¢
+		Gyro_Balance = Gyro_X;                                   //æ›´æ–°å¹³è¡¡è§’é€Ÿåº¦
+		Accel_Angle = atan2(Accel_Y, Accel_Z) * 180 / PI;        //è®¡ç®—å€¾è§’
+		Gyro_X = Gyro_X / 16.4;                                  //é™€èºä»ªé‡ç¨‹è½¬æ¢
+		if (filter_method == 1)		  	Kalman_Filter(Accel_Angle, Gyro_X);//å¡å°”æ›¼æ»¤æ³¢
+		else if (filter_method == 2)   First_Filter(Accel_Angle, Gyro_X);//äº’è¡¥æ»¤æ³¢
+		Angle_Balance = angle;                                   //æ›´æ–°å¹³è¡¡å€¾è§’
+		Gyro_Turn = Gyro_Z;                                      //æ›´æ–°è½¬å‘è§’é€Ÿåº¦
+		Acceleration_Z = Accel_Z;                                //===æ›´æ–°Zè½´åŠ é€Ÿåº¦è®¡
 	}
 }
 
 /**************************************************************************
-º¯Êı¹¦ÄÜ£ºÖ±Á¢PD¿ØÖÆ
-Èë¿Ú²ÎÊı£º½Ç¶È¡¢½ÇËÙ¶È
-·µ»Ø  Öµ£ºÖ±Á¢¿ØÖÆPWM
+å‡½æ•°åŠŸèƒ½ï¼šç›´ç«‹PDæ§åˆ¶
+å…¥å£å‚æ•°ï¼šè§’åº¦ã€è§’é€Ÿåº¦
+è¿”å›  å€¼ï¼šç›´ç«‹æ§åˆ¶PWM
 **************************************************************************/
 int balance(float Angle, float Gyro)
 {
 	float Bias;
 	int balance;
-	Bias = Angle - middle;       //===Çó³öÆ½ºâµÄ½Ç¶ÈÖĞÖµ ºÍ»úĞµÏà¹Ø
-	balance = Balance_Kp*Bias + Gyro*Balance_Kd;   //===¼ÆËãÆ½ºâ¿ØÖÆµÄµç»úPWM  PD¿ØÖÆ   kpÊÇPÏµÊı kdÊÇDÏµÊı 
+	Bias = Angle - middle;       //===æ±‚å‡ºå¹³è¡¡çš„è§’åº¦ä¸­å€¼ å’Œæœºæ¢°ç›¸å…³
+	balance = Balance_Kp*Bias + Gyro*Balance_Kd;   //===è®¡ç®—å¹³è¡¡æ§åˆ¶çš„ç”µæœºPWM  PDæ§åˆ¶   kpæ˜¯Pç³»æ•° kdæ˜¯Dç³»æ•° 
 	return balance;
 }
 
 /**************************************************************************
-º¯Êı¹¦ÄÜ£ºËÙ¶ÈPI¿ØÖÆ ĞŞ¸ÄÇ°½øºóÍËËÙ¶È
-Èë¿Ú²ÎÊı£º×óÂÖ±àÂëÆ÷¡¢ÓÒÂÖ±àÂëÆ÷
-·µ»Ø  Öµ£ºËÙ¶È¿ØÖÆPWM
+å‡½æ•°åŠŸèƒ½ï¼šé€Ÿåº¦PIæ§åˆ¶ ä¿®æ”¹å‰è¿›åé€€é€Ÿåº¦
+å…¥å£å‚æ•°ï¼šå·¦è½®ç¼–ç å™¨ã€å³è½®ç¼–ç å™¨
+è¿”å›  å€¼ï¼šé€Ÿåº¦æ§åˆ¶PWM
 **************************************************************************/
 int velocity(int encoder_left, int encoder_right)
 {
 	static float Velocity = 0, Encoder_Least = 0, Encoder = 0;
 	static float Encoder_Integral = 0;
-	Encoder_Least = (Encoder_Left + Encoder_Right) - 0;                 //===»ñÈ¡×îĞÂËÙ¶ÈÆ«²î==²âÁ¿ËÙ¶È£¨×óÓÒ±àÂëÆ÷Ö®ºÍ£©-Ä¿±êËÙ¶È£¨´Ë´¦ÎªÁã£© 
-	Encoder *= 0.8;		                                                  //===Ò»½×µÍÍ¨ÂË²¨Æ÷
-	Encoder += Encoder_Least*0.2;	                                      //===Ò»½×µÍÍ¨ÂË²¨Æ÷
-	Encoder_Integral += Encoder;                                        //===»ı·Ö³öÎ»ÒÆ »ı·ÖÊ±¼ä£º10ms
-	Encoder_Integral = Encoder_Integral;                     //===½ÓÊÕÒ£¿ØÆ÷Êı¾İ£¬¿ØÖÆÇ°½øºóÍË
-	if (Encoder_Integral > 10000)  	Encoder_Integral = 10000;           //===»ı·ÖÏŞ·ù
-	if (Encoder_Integral < -10000)	Encoder_Integral = -10000;          //===»ı·ÖÏŞ·ù
-	Velocity = Encoder*Velocity_Kp + Encoder_Integral*Velocity_Ki;      //===ËÙ¶È¿ØÖÆ
+	Encoder_Least = (Encoder_Left + Encoder_Right) - 0;                 //===è·å–æœ€æ–°é€Ÿåº¦åå·®==æµ‹é‡é€Ÿåº¦ï¼ˆå·¦å³ç¼–ç å™¨ä¹‹å’Œï¼‰-ç›®æ ‡é€Ÿåº¦ï¼ˆæ­¤å¤„ä¸ºé›¶ï¼‰ 
+	Encoder *= 0.8;		                                                  //===ä¸€é˜¶ä½é€šæ»¤æ³¢å™¨
+	Encoder += Encoder_Least*0.2;	                                      //===ä¸€é˜¶ä½é€šæ»¤æ³¢å™¨
+	Encoder_Integral += Encoder;                                        //===ç§¯åˆ†å‡ºä½ç§» ç§¯åˆ†æ—¶é—´ï¼š10ms
+	Encoder_Integral = Encoder_Integral;                     //===æ¥æ”¶é¥æ§å™¨æ•°æ®ï¼Œæ§åˆ¶å‰è¿›åé€€
+	if (Encoder_Integral > 10000)  	Encoder_Integral = 10000;           //===ç§¯åˆ†é™å¹…
+	if (Encoder_Integral < -10000)	Encoder_Integral = -10000;          //===ç§¯åˆ†é™å¹…
+	Velocity = Encoder*Velocity_Kp + Encoder_Integral*Velocity_Ki;      //===é€Ÿåº¦æ§åˆ¶
 	return Velocity;
 }
 
 /**************************************************************************
-º¯Êı¹¦ÄÜ£º×ªÏò¿ØÖÆ
-Èë¿Ú²ÎÊı£º×óÂÖ±àÂëÆ÷¡¢ÓÒÂÖ±àÂëÆ÷¡¢ZÖáÍÓÂİÒÇ
-·µ»Ø  Öµ£º×ªÏò¿ØÖÆPWM
+å‡½æ•°åŠŸèƒ½ï¼šè½¬å‘æ§åˆ¶
+å…¥å£å‚æ•°ï¼šå·¦è½®ç¼–ç å™¨ã€å³è½®ç¼–ç å™¨ã€Zè½´é™€èºä»ª
+è¿”å›  å€¼ï¼šè½¬å‘æ§åˆ¶PWM
 **************************************************************************/
-int turn(int encoder_left, int encoder_right, float gyro)//×ªÏò¿ØÖÆ
+int turn(int encoder_left, int encoder_right, float gyro)//è½¬å‘æ§åˆ¶
 {
 	static float Turn_Target = 0, Turn = 0;
-	Turn = -Turn_Target*Turn_Kp - gyro*Turn_Kd;  //===½áºÏZÖáÍÓÂİÒÇ½øĞĞPD¿ØÖÆ
+	Turn = -Turn_Target*Turn_Kp - gyro*Turn_Kd;  //===ç»“åˆZè½´é™€èºä»ªè¿›è¡ŒPDæ§åˆ¶
 	return Turn;
 }
 
@@ -210,12 +210,12 @@ void SafeCheck(void)
 	}
 }
 
-unsigned char Send_Count; //´®¿ÚĞèÒª·¢ËÍµÄÊı¾İ¸öÊı
+unsigned char Send_Count; //ä¸²å£éœ€è¦å‘é€çš„æ•°æ®ä¸ªæ•°
 
 void DataSend(void)
 {
 	int i;
-	DataScope_Get_Channel_Data(Angle_Balance * 10, 1); // X10ÀûÓÚ¹Û²ì
+	DataScope_Get_Channel_Data(Angle_Balance * 10, 1); // X10åˆ©äºè§‚å¯Ÿ
 	DataScope_Get_Channel_Data(Encoder_Left, 4);
 	DataScope_Get_Channel_Data(Encoder_Right, 5);
 

@@ -1,31 +1,31 @@
-#include <sys.h>
+ï»¿#include <sys.h>
 
-//ÉèÖÃÏòÁ¿±íÆ«ÒÆµØÖ·
-//NVIC_VectTab:»ùÖ·
-//Offset:Æ«ÒÆÁ¿			 
+//è®¾ç½®å‘é‡è¡¨åç§»åœ°å€
+//NVIC_VectTab:åŸºå€
+//Offset:åç§»é‡			 
 void MY_NVIC_SetVectorTable(u32 NVIC_VectTab, u32 Offset)
 {
-	SCB->VTOR = NVIC_VectTab | (Offset & (u32)0x1FFFFF80);//ÉèÖÃNVICµÄÏòÁ¿±íÆ«ÒÆ¼Ä´æÆ÷
-	//ÓÃÓÚ±êÊ¶ÏòÁ¿±íÊÇÔÚCODEÇø»¹ÊÇÔÚRAMÇø
+	SCB->VTOR = NVIC_VectTab | (Offset & (u32)0x1FFFFF80);//è®¾ç½®NVICçš„å‘é‡è¡¨åç§»å¯„å­˜å™¨
+	//ç”¨äºæ ‡è¯†å‘é‡è¡¨æ˜¯åœ¨CODEåŒºè¿˜æ˜¯åœ¨RAMåŒº
 }
 
-//²»ÄÜÔÚÕâÀïÖ´ĞĞËùÓĞÍâÉè¸´Î»!·ñÔòÖÁÉÙÒıÆğ´®¿Ú²»¹¤×÷.		    
-//°ÑËùÓĞÊ±ÖÓ¼Ä´æÆ÷¸´Î»		  
+//ä¸èƒ½åœ¨è¿™é‡Œæ‰§è¡Œæ‰€æœ‰å¤–è®¾å¤ä½!å¦åˆ™è‡³å°‘å¼•èµ·ä¸²å£ä¸å·¥ä½œ.		    
+//æŠŠæ‰€æœ‰æ—¶é’Ÿå¯„å­˜å™¨å¤ä½		  
 void MYRCC_DeInit(void)
 {
-	RCC->APB1RSTR = 0x00000000;//¸´Î»½áÊø			 
+	RCC->APB1RSTR = 0x00000000;//å¤ä½ç»“æŸ			 
 	RCC->APB2RSTR = 0x00000000;
 
-	RCC->AHBENR = 0x00000014;  //Ë¯ÃßÄ£Ê½ÉÁ´æºÍSRAMÊ±ÖÓÊ¹ÄÜ.ÆäËû¹Ø±Õ.	  
-	RCC->APB2ENR = 0x00000000; //ÍâÉèÊ±ÖÓ¹Ø±Õ.			   
+	RCC->AHBENR = 0x00000014;  //ç¡çœ æ¨¡å¼é—ªå­˜å’ŒSRAMæ—¶é’Ÿä½¿èƒ½.å…¶ä»–å…³é—­.	  
+	RCC->APB2ENR = 0x00000000; //å¤–è®¾æ—¶é’Ÿå…³é—­.			   
 	RCC->APB1ENR = 0x00000000;
-	RCC->CR |= 0x00000001;     //Ê¹ÄÜÄÚ²¿¸ßËÙÊ±ÖÓHSION	 															 
-	RCC->CFGR &= 0xF8FF0000;   //¸´Î»SW[1:0],HPRE[3:0],PPRE1[2:0],PPRE2[2:0],ADCPRE[1:0],MCO[2:0]					 
-	RCC->CR &= 0xFEF6FFFF;     //¸´Î»HSEON,CSSON,PLLON
-	RCC->CR &= 0xFFFBFFFF;     //¸´Î»HSEBYP	   	  
-	RCC->CFGR &= 0xFF80FFFF;   //¸´Î»PLLSRC, PLLXTPRE, PLLMUL[3:0] and USBPRE 
-	RCC->CIR = 0x00000000;     //¹Ø±ÕËùÓĞÖĞ¶Ï		 
-	//ÅäÖÃÏòÁ¿±í				  
+	RCC->CR |= 0x00000001;     //ä½¿èƒ½å†…éƒ¨é«˜é€Ÿæ—¶é’ŸHSION	 															 
+	RCC->CFGR &= 0xF8FF0000;   //å¤ä½SW[1:0],HPRE[3:0],PPRE1[2:0],PPRE2[2:0],ADCPRE[1:0],MCO[2:0]					 
+	RCC->CR &= 0xFEF6FFFF;     //å¤ä½HSEON,CSSON,PLLON
+	RCC->CR &= 0xFFFBFFFF;     //å¤ä½HSEBYP	   	  
+	RCC->CFGR &= 0xFF80FFFF;   //å¤ä½PLLSRC, PLLXTPRE, PLLMUL[3:0] and USBPRE 
+	RCC->CIR = 0x00000000;     //å…³é—­æ‰€æœ‰ä¸­æ–­		 
+	//é…ç½®å‘é‡è¡¨				  
 #ifdef  VECT_TAB_RAM
 	MY_NVIC_SetVectorTable(0x20000000, 0x0);
 #else   
@@ -33,24 +33,24 @@ void MYRCC_DeInit(void)
 #endif
 }
 
-//ÏµÍ³Ê±ÖÓ³õÊ¼»¯º¯Êı
-//pll:Ñ¡ÔñµÄ±¶ÆµÊı£¬´Ó2¿ªÊ¼£¬×î´óÖµÎª16		 
+//ç³»ç»Ÿæ—¶é’Ÿåˆå§‹åŒ–å‡½æ•°
+//pll:é€‰æ‹©çš„å€é¢‘æ•°ï¼Œä»2å¼€å§‹ï¼Œæœ€å¤§å€¼ä¸º16		 
 void Stm32_Clock_Init(u8 PLL)
 {
 	unsigned char temp = 0;
-	MYRCC_DeInit();		  //¸´Î»²¢ÅäÖÃÏòÁ¿±í
-	RCC->CR |= 0x00010000;  //Íâ²¿¸ßËÙÊ±ÖÓÊ¹ÄÜHSEON
-	while (!(RCC->CR >> 17));//µÈ´ıÍâ²¿Ê±ÖÓ¾ÍĞ÷
+	MYRCC_DeInit();		  //å¤ä½å¹¶é…ç½®å‘é‡è¡¨
+	RCC->CR |= 0x00010000;  //å¤–éƒ¨é«˜é€Ÿæ—¶é’Ÿä½¿èƒ½HSEON
+	while (!(RCC->CR >> 17));//ç­‰å¾…å¤–éƒ¨æ—¶é’Ÿå°±ç»ª
 	RCC->CFGR = 0X00000400; //APB1=DIV2;APB2=DIV1;AHB=DIV1;
-	PLL -= 2;//µÖÏû2¸öµ¥Î»
-	RCC->CFGR |= PLL << 18;   //ÉèÖÃPLLÖµ 2~16
+	PLL -= 2;//æŠµæ¶ˆ2ä¸ªå•ä½
+	RCC->CFGR |= PLL << 18;   //è®¾ç½®PLLå€¼ 2~16
 	RCC->CFGR |= 1 << 16;	  //PLLSRC ON 
-	FLASH->ACR |= 0x32;	  //FLASH 2¸öÑÓÊ±ÖÜÆÚ
+	FLASH->ACR |= 0x32;	  //FLASH 2ä¸ªå»¶æ—¶å‘¨æœŸ
 
 	RCC->CR |= 0x01000000;  //PLLON
-	while (!(RCC->CR >> 25));//µÈ´ıPLLËø¶¨
-	RCC->CFGR |= 0x00000002;//PLL×÷ÎªÏµÍ³Ê±ÖÓ	 
-	while (temp != 0x02)     //µÈ´ıPLL×÷ÎªÏµÍ³Ê±ÖÓÉèÖÃ³É¹¦
+	while (!(RCC->CR >> 25));//ç­‰å¾…PLLé”å®š
+	RCC->CFGR |= 0x00000002;//PLLä½œä¸ºç³»ç»Ÿæ—¶é’Ÿ	 
+	while (temp != 0x02)     //ç­‰å¾…PLLä½œä¸ºç³»ç»Ÿæ—¶é’Ÿè®¾ç½®æˆåŠŸ
 	{
 		temp = RCC->CFGR >> 2;
 		temp &= 0x03;
@@ -60,11 +60,11 @@ void Stm32_Clock_Init(u8 PLL)
 void LED_Init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); //Ê¹ÄÜ¶Ë¿ÚÊ±ÖÓ
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;	          //¶Ë¿ÚÅäÖÃ
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;      //ÍÆÍìÊä³ö
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); //ä½¿èƒ½ç«¯å£æ—¶é’Ÿ
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;	          //ç«¯å£é…ç½®
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;      //æ¨æŒ½è¾“å‡º
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;     //50M
-	GPIO_Init(GPIOA, &GPIO_InitStructure);					      //¸ù¾İÉè¶¨²ÎÊı³õÊ¼»¯GPIOC 
+	GPIO_Init(GPIOA, &GPIO_InitStructure);					      //æ ¹æ®è®¾å®šå‚æ•°åˆå§‹åŒ–GPIOC 
 }
 
 void KEY_Init(void)
@@ -72,21 +72,21 @@ void KEY_Init(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	EXTI_InitTypeDef EXTI_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);//Íâ²¿ÖĞ¶Ï£¬ĞèÒªÊ¹ÄÜAFIOÊ±ÖÓ
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); //Ê¹ÄÜPB¶Ë¿ÚÊ±ÖÓ
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;	            //¶Ë¿ÚÅäÖÃ
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;         //ÉÏÀ­ÊäÈë
-	GPIO_Init(GPIOA, &GPIO_InitStructure);					      //¸ù¾İÉè¶¨²ÎÊı³õÊ¼»¯GPIOB 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);//å¤–éƒ¨ä¸­æ–­ï¼Œéœ€è¦ä½¿èƒ½AFIOæ—¶é’Ÿ
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); //ä½¿èƒ½PBç«¯å£æ—¶é’Ÿ
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;	            //ç«¯å£é…ç½®
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;         //ä¸Šæ‹‰è¾“å…¥
+	GPIO_Init(GPIOA, &GPIO_InitStructure);					      //æ ¹æ®è®¾å®šå‚æ•°åˆå§‹åŒ–GPIOB 
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource5);
 	EXTI_InitStructure.EXTI_Line = EXTI_Line5;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;//ÏÂ½µÑØ´¥·¢
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;//ä¸‹é™æ²¿è§¦å‘
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	EXTI_Init(&EXTI_InitStructure);	 	//¸ù¾İEXTI_InitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯ÍâÉèEXTI¼Ä´æÆ÷
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;			//Ê¹ÄÜ°´¼üËùÔÚµÄÍâ²¿ÖĞ¶ÏÍ¨µÀ
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;	//ÇÀÕ¼ÓÅÏÈ¼¶2£¬ 
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;					//×ÓÓÅÏÈ¼¶1
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;								//Ê¹ÄÜÍâ²¿ÖĞ¶ÏÍ¨µÀ
+	EXTI_Init(&EXTI_InitStructure);	 	//æ ¹æ®EXTI_InitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾EXTIå¯„å­˜å™¨
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;			//ä½¿èƒ½æŒ‰é”®æ‰€åœ¨çš„å¤–éƒ¨ä¸­æ–­é€šé“
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;	//æŠ¢å ä¼˜å…ˆçº§2ï¼Œ 
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;					//å­ä¼˜å…ˆçº§1
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;								//ä½¿èƒ½å¤–éƒ¨ä¸­æ–­é€šé“
 	NVIC_Init(&NVIC_InitStructure);
 }
 
@@ -95,34 +95,34 @@ void MPU6050_EXTI_Init(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 	EXTI_InitTypeDef EXTI_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);//Íâ²¿ÖĞ¶Ï£¬ĞèÒªÊ¹ÄÜAFIOÊ±ÖÓ
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); //Ê¹ÄÜPB¶Ë¿ÚÊ±ÖÓ
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;	            //¶Ë¿ÚÅäÖÃ
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;         //ÉÏÀ­ÊäÈë
-	GPIO_Init(GPIOA, &GPIO_InitStructure);					      //¸ù¾İÉè¶¨²ÎÊı³õÊ¼»¯GPIOB 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);//å¤–éƒ¨ä¸­æ–­ï¼Œéœ€è¦ä½¿èƒ½AFIOæ—¶é’Ÿ
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); //ä½¿èƒ½PBç«¯å£æ—¶é’Ÿ
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;	            //ç«¯å£é…ç½®
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;         //ä¸Šæ‹‰è¾“å…¥
+	GPIO_Init(GPIOA, &GPIO_InitStructure);					      //æ ¹æ®è®¾å®šå‚æ•°åˆå§‹åŒ–GPIOB 
 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource12);
 	EXTI_InitStructure.EXTI_Line = EXTI_Line12;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;//ÏÂ½µÑØ´¥·¢
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;//ä¸‹é™æ²¿è§¦å‘
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	EXTI_Init(&EXTI_InitStructure);	 	//¸ù¾İEXTI_InitStructÖĞÖ¸¶¨µÄ²ÎÊı³õÊ¼»¯ÍâÉèEXTI¼Ä´æÆ÷
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;			//Ê¹ÄÜ°´¼üËùÔÚµÄÍâ²¿ÖĞ¶ÏÍ¨µÀ
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;	//ÇÀÕ¼ÓÅÏÈ¼¶2£¬ 
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;					//×ÓÓÅÏÈ¼¶1
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;								//Ê¹ÄÜÍâ²¿ÖĞ¶ÏÍ¨µÀ
+	EXTI_Init(&EXTI_InitStructure);	 	//æ ¹æ®EXTI_InitStructä¸­æŒ‡å®šçš„å‚æ•°åˆå§‹åŒ–å¤–è®¾EXTIå¯„å­˜å™¨
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;			//ä½¿èƒ½æŒ‰é”®æ‰€åœ¨çš„å¤–éƒ¨ä¸­æ–­é€šé“
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;	//æŠ¢å ä¼˜å…ˆçº§2ï¼Œ 
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;					//å­ä¼˜å…ˆçº§1
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;								//ä½¿èƒ½å¤–éƒ¨ä¸­æ–­é€šé“
 	NVIC_Init(&NVIC_InitStructure);
 }
 
-//ÉèÖÃNVIC·Ö×é
-//NVIC_Group:NVIC·Ö×é 0~4 ×Ü¹²5×é 		   
+//è®¾ç½®NVICåˆ†ç»„
+//NVIC_Group:NVICåˆ†ç»„ 0~4 æ€»å…±5ç»„ 		   
 void MY_NVIC_PriorityGroupConfig(u8 NVIC_Group)
 {
 	u32 temp, temp1;
-	temp1 = (~NVIC_Group) & 0x07;//È¡ºóÈıÎ»
+	temp1 = (~NVIC_Group) & 0x07;//å–åä¸‰ä½
 	temp1 <<= 8;
-	temp = SCB->AIRCR;  //¶ÁÈ¡ÏÈÇ°µÄÉèÖÃ
-	temp &= 0X0000F8FF; //Çå¿ÕÏÈÇ°·Ö×é
-	temp |= 0X05FA0000; //Ğ´ÈëÔ¿³×
+	temp = SCB->AIRCR;  //è¯»å–å…ˆå‰çš„è®¾ç½®
+	temp &= 0X0000F8FF; //æ¸…ç©ºå…ˆå‰åˆ†ç»„
+	temp |= 0X05FA0000; //å†™å…¥é’¥åŒ™
 	temp |= temp1;
-	SCB->AIRCR = temp;  //ÉèÖÃ·Ö×é	    	  				   
+	SCB->AIRCR = temp;  //è®¾ç½®åˆ†ç»„	    	  				   
 }

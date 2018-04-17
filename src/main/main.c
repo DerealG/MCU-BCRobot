@@ -1,31 +1,31 @@
-#include <sys.h>
+ï»¿#include <sys.h>
 
 int main() {
 
-	/* ÏµÍ³ */
-	//Stm32_Clock_Init(9);            //ÏµÍ³Ê±ÖÓÉèÖÃ
+	/* ç³»ç»Ÿ */
+	//Stm32_Clock_Init(9);            //ç³»ç»Ÿæ—¶é’Ÿè®¾ç½®
 	delay_init();
 	uart3_init(9600);
 	uart1_init(256000);
 	printf("Init.\r\n");
 	MY_NVIC_PriorityGroupConfig(2);
-	LED_Init();		//LEDÖ¸Ê¾
-	KEY_Init();		//°´¼ü
+	LED_Init();		//LEDæŒ‡ç¤º
+	KEY_Init();		//æŒ‰é”®
 
-	/* ´«¸Ğbase */
-	IIC_Init();                     //Ä£ÄâIIC³õÊ¼»¯
-	MPU6050_initialize();           //MPU6050³õÊ¼»¯	
-	DMP_Init();                     //³õÊ¼»¯DMP
-	Adc_Init(); 	//µçÑ¹²âÁ¿
-	Encoder_Init_TIM2(); //±àÂëÆ÷²âËÙ1
-	Encoder_Init_TIM4(); //±àÂëÆ÷²âËÙ2
+	/* ä¼ æ„Ÿbase */
+	IIC_Init();                     //æ¨¡æ‹ŸIICåˆå§‹åŒ–
+	MPU6050_initialize();           //MPU6050åˆå§‹åŒ–	
+	DMP_Init();                     //åˆå§‹åŒ–DMP
+	Adc_Init(); 	//ç”µå‹æµ‹é‡
+	Encoder_Init_TIM2(); //ç¼–ç å™¨æµ‹é€Ÿ1
+	Encoder_Init_TIM4(); //ç¼–ç å™¨æµ‹é€Ÿ2
 
-	/* ¿ØÖÆ */
-	MiniBalance_PWM_Init(7199, 0);   //³õÊ¼»¯PWM 10KHZ£¬ÓÃÓÚÇı¶¯µç»ú
+	/* æ§åˆ¶ */
+	MiniBalance_PWM_Init(7199, 0);   //åˆå§‹åŒ–PWM 10KHZï¼Œç”¨äºé©±åŠ¨ç”µæœº
 	Set_Pwm(0, 0);
 	Motor_Close = 1;
 
-	//¿ØÖÆÖĞ¶Ï
+	//æ§åˆ¶ä¸­æ–­
 	MPU6050_EXTI_Init();
 
 	printf("Start.\r\n");
