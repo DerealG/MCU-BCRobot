@@ -27,6 +27,9 @@
 #include "dmpmap.h"
 #include "filter.h"
 
+//Data
+#include "DataScope_DP.h"
+
 #define FTIR   1  //下降沿触发
 #define RTIR   2  //上升沿触发
 

@@ -51,13 +51,13 @@ void Set_Pwm(int moto1, int moto2)
 {
 	if (moto1 < 0)
 	{
-		AIN2 = 1;
-		AIN1 = 0;
+		AIN2 = 0;
+		AIN1 = 1;
 	}
 	else
 	{
-		AIN2 = 0;
-		AIN1 = 1;
+		AIN2 = 1;
+		AIN1 = 0;
 	}
 	PWMA = getAbs(moto1);
 	if (moto2 < 0)

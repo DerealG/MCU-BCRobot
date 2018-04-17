@@ -4,13 +4,15 @@ u8 filter_method = 2;  //选择卡尔曼滤波
 
 int Motor_Close = 0;
 
+float middle = 7;
+
 int Encoder_Left = 0, Encoder_Right = 0;
 float Angle_Balance, Gyro_Balance, Gyro_Turn; //平衡倾角 平衡陀螺仪 转向陀螺仪
 float Acceleration_Z;                         //Z轴加速度计
 int Balance_Pwm = 0, Velocity_Pwm = 0, Turn_Pwm = 0;
 int Moto1, Moto2;                             //电机PWM变量 应是Motor的 向Moto致敬
-float Balance_Kp = 300, Balance_Kd = 1;
-float Velocity_Kp = 80, Velocity_Ki = 0.4;
+float Balance_Kp = 0, Balance_Kd = 0;
+float Velocity_Kp = 0, Velocity_Ki = 0;
 /**************************************************************************
 函数功能：所有的控制代码
 		 5ms定时中断由MPU6050的INT引脚触发
@@ -26,12 +28,12 @@ int EXTI15_10_IRQHandler(void)
 		{
 			if (USART_RX_BUF[0] == 'W' && USART_RX_BUF[1] == ':') //校验包头
 			{
-				sscanf((const char *)(USART_RX_BUF + 2), "%d,%f,%f,%f,%f", &Motor_Close, &Balance_Kp, &Balance_Kd, &Velocity_Kp, &Velocity_Ki);
-				printf("Write:%d,%f,%f,%f,%f\r\n", Motor_Close, Balance_Kp, Balance_Kd, Velocity_Kp, Velocity_Ki);
+				sscanf((const char *)(USART_RX_BUF + 2), "%d,%f,%f,%f,%f,%f", &Motor_Close, &middle, &Balance_Kp, &Balance_Kd, &Velocity_Kp, &Velocity_Ki);
+				printf("Write:%d,%f,%f,%f,%f,%f\r\n", Motor_Close, middle, Balance_Kp, Balance_Kd, Velocity_Kp, Velocity_Ki);
 			}
 			if (USART_RX_BUF[0] == 'R' && USART_RX_BUF[1] == ':')
 			{
-				printf("Read:%f,%f,%f,%f\r\n", Angle_Balance, Gyro_Balance, Gyro_Turn, Acceleration_Z);
+				printf("Read:%f,%f,%f,%f,%f\r\n", middle, Angle_Balance, Gyro_Balance, Gyro_Turn, Acceleration_Z);
 			}
 			if (USART_RX_BUF[0] == 'D' && USART_RX_BUF[1] == ':')
 			{
@@ -42,15 +44,18 @@ int EXTI15_10_IRQHandler(void)
 
 		}
 
-		Encoder_Left = -Read_Encoder(2);                //===读取编码器的值
+		Encoder_Left = Read_Encoder(2);                //===读取编码器的值
 		Encoder_Right = Read_Encoder(4);                //===读取编码器的值
 		Get_Angle(filter_method);                       //===更新姿态
 		SafeCheck();
 		Balance_Pwm = balance(Angle_Balance, Gyro_Balance);        //===平衡PID控制	
-		Velocity_Pwm = velocity(Encoder_Left, Encoder_Right);      //===速度环PID控制
+		//Velocity_Pwm = velocity(Encoder_Left, Encoder_Right);      //===速度环PID控制
 		Moto1 = Balance_Pwm - Velocity_Pwm + Turn_Pwm;             //===计算左轮电机最终PWM
 		Moto2 = Balance_Pwm - Velocity_Pwm - Turn_Pwm;             //===计算右轮电机最终PWM
 		setResultPwm(Moto1, Moto2);
+
+		//Data
+		//DataSend();
 	}
 	return 0;
 }
@@ -105,7 +110,7 @@ int balance(float Angle, float Gyro)
 {
 	float Bias;
 	int balance;
-	Bias = Angle - MIDDLE;       //===求出平衡的角度中值 和机械相关
+	Bias = Angle - middle;       //===求出平衡的角度中值 和机械相关
 	balance = Balance_Kp*Bias + Gyro*Balance_Kd;   //===计算平衡控制的电机PWM  PD控制   kp是P系数 kd是D系数 
 	return balance;
 }
@@ -147,16 +152,36 @@ void setResultPwm(int moto1, int moto2)
 		if (moto2 > MAX_SPEED)  moto2 = MAX_SPEED;
 		PAout(4) = 0;
 	}
+	DataScope_Get_Channel_Data(moto1, 2);
+	DataScope_Get_Channel_Data(moto2, 3);
 	Set_Pwm(moto1, moto2);
 }
 
 void SafeCheck(void)
 {
-	if (Angle_Balance > 8.0 && Motor_Close == 0)
+	if (Acceleration_Z < 13000.0 && Motor_Close == 0)
 	{
 		Motor_Close = 1;
 		PAout(4) = 1;
 		setResultPwm(0, 0);
 		printf("Turn OFF car.\r\n");
+	}
+}
+
+unsigned char Send_Count; //串口需要发送的数据个数
+
+void DataSend(void)
+{
+	int i;
+	DataScope_Get_Channel_Data(Angle_Balance * 10, 1); // X10利于观察
+	DataScope_Get_Channel_Data(Encoder_Left, 4);
+	DataScope_Get_Channel_Data(Encoder_Right, 5);
+
+	Send_Count = DataScope_Data_Generate(5);
+
+	for (i = 0; i < Send_Count; i++)
+	{
+		while ((USART1->SR & 0X40) == 0);
+		USART1->DR = DataScope_OutPut_Buffer[i];
 	}
 }
