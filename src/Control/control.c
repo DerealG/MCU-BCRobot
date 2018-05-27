@@ -14,16 +14,21 @@ int Balance_Pwm = 0, Velocity_Pwm = 0, Turn_Pwm = 0;
 int Moto1, Moto2;                             //电机PWM变量
 int MotoDiff = 0;
 
-float middle = -2.5;
+float middle = -3;
 float Balance_Kp = 300, Balance_Kd = 1;
 float Velocity_Kp = 3, Velocity_Ki = 0;
-float Turn_Kp = 0, Turn_Kd = 0;
+float Turn_Kp = 30, Turn_Kd = 0;
 
 //2018-4-17 19:20 {-3.5,400,1,2,0}
 //2018-4-17 20:20 {-3.5,250,1,3,0.02}
 //2018-4-18 1:20 {-3.5,300,1,3,0}
 //2018-4-18 1:20 {-2.5,300,1,3,0}
+//2018-4-18 1:20 {-3,300,1,3,0,30,0}
 float Speed = 0; //移动
+float Turn_Speed = 0;
+int Turn_Dir = 0; //0正向 1左2右
+
+
 /**************************************************************************
 函数功能：所有的控制代码
 		 5ms定时中断由MPU6050的INT引脚触发
@@ -43,7 +48,7 @@ int EXTI15_10_IRQHandler(void)
 		SafeCheck();
 		Balance_Pwm = balance(Angle_Balance, Gyro_Balance);        //===平衡PID控制
 		Velocity_Pwm = velocity(Encoder_Left, Encoder_Right);      //===速度环PID控制
-		//Turn_Pwm = turn(Encoder_Left, Encoder_Right, Gyro_Turn);   //===转向环PID控制
+		Turn_Pwm = turn(Encoder_Left, Encoder_Right, Gyro_Turn);   //===转向环PID控制
 		Moto1 = Balance_Pwm - Velocity_Pwm + Turn_Pwm;             //===计算左轮电机最终PWM
 		Moto2 = Balance_Pwm - Velocity_Pwm - Turn_Pwm;             //===计算右轮电机最终PWM
 		setResultPwm(Moto1, Moto2);
@@ -52,8 +57,9 @@ int EXTI15_10_IRQHandler(void)
 		//帧头表
 		/*
 			帧头  类型  说明				参数表
-			P:		[W]		PID参数			[Motor_Close][middle][MotoDiff][Balance_Kp][Balance_Kd][Velocity_Kp][Velocity_Ki][Turn_Kp][Turn_Kd]
-			A:		[W]		动作参数		[Speed]
+			P:		[W]		平衡PID参数	[Motor_Close][middle][MotoDiff][Balance_Kp][Balance_Kd][Velocity_Kp][Velocity_Ki][Turn_Kp][Turn_Kd]
+		  G:    [W]   前进参数    [Speed][MotoDiff]
+			T:		[W]		转向参数		[Speed][Turn_Speed][Turn_Dir]
 			M:		[R]		MPU6050数据 [middle][Angle_Balance][Gyro_Balance][Gyro_Turn][Acceleration_Z]
 			D:		[R]		传感数据		[Temperature][battery_volt]
 		*/
@@ -66,10 +72,15 @@ int EXTI15_10_IRQHandler(void)
 				printf("Write PID:%d,%f,%d,%f,%f,%f,%f,%f,%f\r\n",
 					Motor_Close, middle, MotoDiff, Balance_Kp, Balance_Kd, Velocity_Kp, Velocity_Ki, Turn_Kp, Turn_Kd);
 			}
-			else if (USART_RX_BUF[0] == 'A' && USART_RX_BUF[1] == ':')
+			else if (USART_RX_BUF[0] == 'G' && USART_RX_BUF[1] == ':')
 			{
-				sscanf((const char *)(USART_RX_BUF + 2), "%f", &Speed);
-				printf("Write Move:%f\r\n", Speed);
+				sscanf((const char *)(USART_RX_BUF + 2), "%f,%d", &Speed, &MotoDiff);
+				printf("Write Go:%f,%d\r\n", Speed, MotoDiff);
+			}
+			else if (USART_RX_BUF[0] == 'T' && USART_RX_BUF[1] == ':')
+			{
+				sscanf((const char *)(USART_RX_BUF + 2), "%f,%f,%d", &Speed, &Turn_Speed, &Turn_Dir);
+				printf("Write Turn:%f,%f,%d\r\n", Speed, Turn_Speed, Turn_Dir);
 			}
 			else if (USART_RX_BUF[0] == 'M' && USART_RX_BUF[1] == ':')
 			{
@@ -189,8 +200,27 @@ int velocity(int encoder_left, int encoder_right)
 **************************************************************************/
 int turn(int encoder_left, int encoder_right, float gyro)//转向控制
 {
-	static float Turn_Target = 0, Turn = 0;
-	Turn = -Turn_Target*Turn_Kp - gyro*Turn_Kd;  //===结合Z轴陀螺仪进行PD控制
+	static float Turn_Target, Turn, Encoder_temp;
+	if (Turn_Dir > 0)                      //这一部分主要是根据旋转前的速度调整速度的起始速度，增加小车的适应性
+	{
+		Encoder_temp = getAbs(encoder_left + encoder_right);
+	}
+	else
+	{
+		Encoder_temp = 0;
+	}
+	if (Turn_Dir == 1)
+		Turn_Target -= Encoder_temp;
+	else if (Turn_Dir == 2)
+		Turn_Target += Encoder_temp;
+	else
+		Turn_Target = 0;
+
+	if (Turn_Target > Turn_Speed)  Turn_Target = Turn_Speed;    //===转向速度限幅
+	if (Turn_Target < -Turn_Speed) Turn_Target = -Turn_Speed;
+	Turn = Turn_Target*Turn_Kp - gyro*Turn_Kd;                 //===结合Z轴陀螺仪进行PD控制
+	if (Speed != 0)
+		Turn = 0;
 	return Turn;
 }
 
