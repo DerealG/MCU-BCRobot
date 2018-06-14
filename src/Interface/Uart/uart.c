@@ -1,4 +1,4 @@
-﻿#include <uart.h>
+#include <uart.h>
 
 //////////////////////////////////////////////////////////////////
 //加入以下代码,支持printf函数,而不需要选择use MicroLIB	  
@@ -176,14 +176,14 @@ void USART3_IRQHandler(void)                	//串口3中断服务程序
 		{
 			if(USART_RX_STA&0x4000)//接收到了0x0d
 			{
-				if(Res!=0x0a)
+				if(Res!='*')
 					USART_RX_STA=0;//接收错误,重新开始
 				else
 					USART_RX_STA|=0x8000;	//接收完成了 
 			}
 			else //还没收到0X0D
 			{	
-				if(Res==0x0d)
+				if(Res=='/')
 					USART_RX_STA|=0x4000;
 				else
 				{

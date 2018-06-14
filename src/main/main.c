@@ -1,4 +1,4 @@
-﻿#include <sys.h>
+#include <sys.h>
 
 int main() {
 
@@ -6,7 +6,7 @@ int main() {
 	//Stm32_Clock_Init(9);            //系统时钟设置
 	delay_init();
 	uart3_init(9600);
-	uart1_init(256000);
+	//uart1_init(256000);
 	printf("Init.\r\n");
 	MY_NVIC_PriorityGroupConfig(2);
 	LED_Init();		//LED指示

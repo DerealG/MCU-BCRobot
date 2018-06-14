@@ -14,9 +14,9 @@ int Balance_Pwm = 0, Velocity_Pwm = 0, Turn_Pwm = 0;
 int Moto1, Moto2;                             //电机PWM变量
 int MotoDiff = 0;
 
-float middle = -3;
+float middle = -3.5;
 float Balance_Kp = 300, Balance_Kd = 1;
-float Velocity_Kp = 3, Velocity_Ki = 0;
+float Velocity_Kp = 3, Velocity_Ki = 0.005;
 float Turn_Kp = 30, Turn_Kd = 0;
 
 //2018-4-17 19:20 {-3.5,400,1,2,0}
@@ -24,6 +24,7 @@ float Turn_Kp = 30, Turn_Kd = 0;
 //2018-4-18 1:20 {-3.5,300,1,3,0}
 //2018-4-18 1:20 {-2.5,300,1,3,0}
 //2018-4-18 1:20 {-3,300,1,3,0,30,0}
+//2018-6-15 1:35 {-3.5,300,1,3,0.005,30,0}
 float Speed = 0; //移动
 float Turn_Speed = 0;
 int Turn_Dir = 0; //0正向 1左2右
